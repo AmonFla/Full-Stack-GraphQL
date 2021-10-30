@@ -1,0 +1,31 @@
+{
+  "name": "full-stack-graphql",
+  "version": "1.0.0",
+  "description": "Ejercicios de la sección GraphQL del curso de https://fullstackopen.com",
+  "main": "library-backend.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon library-backend.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmonFla/Full-Stack-GraphQL.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AmonFla/Full-Stack-GraphQL/issues"
+  },
+  "homepage": "https://github.com/AmonFla/Full-Stack-GraphQL#readme",
+  "dependencies": {
+    "apollo-server": "^3.4.0",
+    "graphql": "^15.7.2"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.1"
+  }
+}
