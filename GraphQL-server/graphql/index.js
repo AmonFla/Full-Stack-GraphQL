@@ -45,7 +45,8 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      const book = new Book({ ...args })
+      const author = await Author.findById(args.author)
+      const book = new Book({ ...args, author: author })
       await book.save()
       return book
     }
@@ -56,35 +57,11 @@ module.exports = { typeDefs, resolvers }
 /*
 const typeDefs = gql`
 
-  type Book{
-    title: String!
-    author: Author!
-    published: Int!
-    genres: [String]!
-    id: ID!
-  }
-
-  type Author{
-    name: String!
-    bookCount: Int!
-    born: Int
-    id: ID!
-  }
-
   type Query {
-    bookCount: Int!
-    authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!,
-    allAuthors: [Author!]!
   }
 
   type Mutation{
-    addBook(
-      title: String!
-      author: String!
-      published: Int!
-      genres: [String]!
-    ): Book
     editAuthor(
       name: String!
       setBornTo: Int!
