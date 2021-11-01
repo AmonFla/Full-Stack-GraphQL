@@ -48,13 +48,7 @@ const resolvers = {
       if (!args.genre) {
         return await Book.find().populate('author')
       }
-
-      try {
-        const books = await Book.find({ genres: { $in: [args.genre] } }).populate('author')
-        return books
-      } catch (e) {
-        throw new UserInputError(e.message, { invalidArgs: args })
-      }
+      return await Book.find({ genres: { $in: [args.genre] } }).populate('author')
     },
     allAuthors: async () => await Author.find()
   },
@@ -84,13 +78,3 @@ const resolvers = {
   }
 }
 module.exports = { typeDefs, resolvers }
-
-/*
-const typeDefs = gql`
-
-  type Query {
-    allBooks(author: String, genre: String): [Book!]!,
-  }
-
-  }
-` */
