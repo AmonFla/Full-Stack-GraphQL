@@ -2,10 +2,11 @@
   "name": "full-stack-graphql",
   "version": "1.0.0",
   "description": "Ejercicios de la sección GraphQL del curso de https://fullstackopen.com",
-  "main": "library-backend.js",
+  "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon library-backend.js"
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -19,7 +20,10 @@
   "homepage": "https://github.com/AmonFla/Full-Stack-GraphQL#readme",
   "dependencies": {
     "apollo-server": "^3.4.0",
-    "graphql": "^15.7.2"
+    "dotenv": "^10.0.0",
+    "graphql": "^15.7.2",
+    "mongoose": "^6.0.12",
+    "mongoose-unique-validator": "^3.0.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
