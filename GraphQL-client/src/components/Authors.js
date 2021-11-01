@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { useQuery } from '@apollo/client'
-import { ALL_AUTHORS } from '../graphql/authors'
+import { AUTHORS_GET_ALL } from '../graphql/authors'
+import AuthorBorn from './AuthorBorn'
 
 const Authors = (props) => {
-  const result = useQuery(ALL_AUTHORS)
+  const result = useQuery(AUTHORS_GET_ALL)
   const [authors, setAuthors] = useState([])
 
   useEffect(()=>{
@@ -40,7 +41,7 @@ const Authors = (props) => {
           )}
         </tbody>
       </table>
-
+      <AuthorBorn />
     </div>
   )
 }
