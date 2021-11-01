@@ -1,4 +1,4 @@
-const { gql } = require('apollo-server')
+const { gql, UserInputError } = require('apollo-server')
 const Book = require('../models/book')
 const Author = require('../models/author')
 
@@ -49,7 +49,12 @@ const resolvers = {
         return await Book.find().populate('author')
       }
 
-      return await Book.find({ genres: { $in: [args.genre] } }).populate('author')
+      try {
+        const books = await Book.find({ genres: { $in: [args.genre] } }).populate('author')
+        return books
+      } catch (e) {
+        throw new UserInputError(e.message, { invalidArgs: args })
+      }
     },
     allAuthors: async () => await Author.find()
   },
@@ -58,17 +63,23 @@ const resolvers = {
       let author = await Author.findOne({ name: args.author })
       if (!author) {
         author = new Author({ name: args.author })
-        await author.save()
+
+        await author.save().catch((e) => {
+          throw new UserInputError(e.message, { invalidArgs: args })
+        })
       }
       const book = new Book({ ...args, author: author })
-      await book.save()
+
+      await book.save().catch((e) => {
+        throw new UserInputError(e.message, { invalidArgs: args })
+      })
       return book
     },
     editAuthor: async (root, args) => {
       const author = await Author.findOne({ name: args.name })
       if (!author) { return null }
-      author.born = args.setBornTo
-      return await Author.findByIdAndUpdate(author.id, { ...author, born: args.setBornTo }, { new: true })
+
+      return await Author.findByIdAndUpdate(author.id, { born: args.setBornTo }, { new: true })
     }
   }
 }
