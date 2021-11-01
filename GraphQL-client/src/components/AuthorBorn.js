@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { AUTHOR_SET_BORN } from "../graphql/authors"
 import { useMutation } from "@apollo/client"
-import { resultKeyNameFromField } from "@apollo/client/utilities"
+import Select from 'react-select'
 
-const AuthorBorn = ()=>{
-    const [name, setName] = useState('')
+const AuthorBorn = ({authors})=>{
+    const [optionSelect, setOptionSelect] = useState(null)
     const [born, setBorn] = useState('')
 
     const [modifyAuthorBorn] = useMutation(AUTHOR_SET_BORN)
 
     const submit = async(e)=> {
         e.preventDefault()
-        modifyAuthorBorn({variables:{name, born: Number(born)}})
+        modifyAuthorBorn({variables:{name: optionSelect.value, born: Number(born)}})
 
-        setName('')
+        setOptionSelect('')
         setBorn('')
     }
 
@@ -23,7 +23,14 @@ const AuthorBorn = ()=>{
             <h2>Set Birthyear</h2>
             <form onSubmit={submit} >
                 <div>
-                    name <input value={name} onChange={(e)=>setName(e.target.value)} />
+                    name <Select 
+                        defaultValue={optionSelect}
+                        onChange={setOptionSelect}
+                        options={authors.map( a => {
+                            return({'value':a.name, 'label':a.name})
+                        } )}
+                    />
+
                 </div>
                 <div>
                     born <input value={born} onChange={(e)=>setBorn(e.target.value)} />
