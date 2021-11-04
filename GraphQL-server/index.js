@@ -1,7 +1,7 @@
 
 const { ApolloServer } = require('apollo-server')
 const mongoose = require('mongoose')
-const { typeDefs, resolvers } = require('./graphql')
+const { typeDefs, resolvers, context } = require('./graphql')
 const config = require('./utils/config')
 
 console.log('Conectando a Mongo')
@@ -15,7 +15,8 @@ mongoose.connect(config.MONGODB_URI)
 
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  context: ({ req }) => context(req)
 })
 
 server.listen().then(({ url }) => {

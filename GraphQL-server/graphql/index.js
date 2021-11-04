@@ -1,6 +1,9 @@
-const { gql, UserInputError } = require('apollo-server')
+const { gql, UserInputError, AuthenticationError } = require('apollo-server')
 const Book = require('../models/book')
 const Author = require('../models/author')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const { SECRET } = require('../utils/config')
 
 const typeDefs = gql`
 
@@ -14,16 +17,27 @@ const typeDefs = gql`
 
   type Author{
     name: String!
-    bookCount: Int!
+    bookCount: Int
     born: Int
     id: ID!
+  }
+
+  type User{
+    username: String!
+    favoriteGenre: String!
+    id:ID!
+  }
+
+  type Token{
+    value: String!
   }
 
   type Query {
     bookCount: Int!
     authorCount: Int!
-    allBooks(genre: String): [Book!]!,
+    allBooks(genre: String): [Book!]!
     allAuthors: [Author!]!
+    me: User
   }
   
   type Mutation{
@@ -37,6 +51,14 @@ const typeDefs = gql`
       name: String!
       setBornTo: Int!
     ): Author
+    createUser(
+      username: String!
+      favoriteGenre: String!
+    ): User
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 `
 
@@ -53,8 +75,14 @@ const resolvers = {
     allAuthors: async () => await Author.find()
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
       let author = await Author.findOne({ name: args.author })
+      const currentUser = context.currentUser
+
+      if (!currentUser) {
+        throw new AuthenticationError('not authenticated')
+      }
+
       if (!author) {
         author = new Author({ name: args.author })
 
@@ -69,12 +97,48 @@ const resolvers = {
       })
       return book
     },
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
       const author = await Author.findOne({ name: args.name })
+      const currentUser = context.currentUser
+
+      if (!currentUser) {
+        throw new AuthenticationError('not authenticated')
+      }
       if (!author) { return null }
 
       return await Author.findByIdAndUpdate(author.id, { born: args.setBornTo }, { new: true })
+    },
+    createUser: async (root, args) => {
+      const user = new User({ ...args })
+      await user.save().catch((e) => {
+        throw new UserInputError(e.message, { invalidArgs: args })
+      })
+      return user
+    },
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username })
+      if (!user || args.password !== 'clave') {
+        throw new UserInputError('Wrong Credentials')
+      }
+      const userToken = {
+        username: user.username,
+        favoriteGenre: user.favoriteGenre,
+        id: user._id
+      }
+      return { value: jwt.sign(userToken, SECRET) }
     }
   }
 }
-module.exports = { typeDefs, resolvers }
+
+const context = async (req) => {
+  const auth = req ? req.headers.authorization : null
+  if (auth && auth.toLowerCase().startsWith('bearer ')) {
+    const decodedToken = jwt.verify(
+      auth.substring(7), SECRET
+    )
+    const currentUser = await User.findById(decodedToken.id)
+    return { currentUser }
+  }
+}
+
+module.exports = { typeDefs, resolvers, context }
