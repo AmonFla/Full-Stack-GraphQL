@@ -6,6 +6,7 @@ import { BOOKS_GET_ALL } from '../graphql/books'
 const Books = (props) => {
   const [books, setBooks] = useState([])
   const result = useQuery(BOOKS_GET_ALL)
+  console.log(result)
   
   useEffect(()=>{
     if(result.data){
@@ -35,7 +36,7 @@ const Books = (props) => {
           {books.map(a =>
             <tr key={a.title}>
               <td>{a.title}</td>
-              <td>{a.author}</td>
+              <td>{a.author.name}</td>
               <td>{a.published}</td>
             </tr>
           )}
