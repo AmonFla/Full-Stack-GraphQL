@@ -31,6 +31,21 @@ export const BOOKS_ADD = gql`
           }
     }
 ` 
+export const BOOKS_GET_BY_GENRE = gql`
+    query getAllByGenre($genre: String!){
+        allBooks(genre: $genre){
+            title
+            author{
+              name
+              born
+              id
+            }
+            published
+            genres
+            id
+        }
+    }
+`
 /*`
 
   type Book{

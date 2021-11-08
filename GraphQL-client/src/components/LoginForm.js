@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react"
-import { LOGIN } from "../graphql/login"
+import { USER_LOGIN } from "../graphql/user"
 import { useMutation } from "@apollo/client"  
 
 const LoginForm = ({setToken, show, setPage})=>{
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
 
-    const [userLogin, result] = useMutation(LOGIN)
+    const [userLogin, result] = useMutation(USER_LOGIN)
 
     const submit = async(e)=> {
         e.preventDefault()
