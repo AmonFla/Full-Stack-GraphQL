@@ -6,7 +6,6 @@ import { BOOKS_GET_ALL } from '../graphql/books'
 const Books = (props) => {
   const [books, setBooks] = useState([])
   const result = useQuery(BOOKS_GET_ALL)
-  console.log(result)
   
   useEffect(()=>{
     if(result.data){
