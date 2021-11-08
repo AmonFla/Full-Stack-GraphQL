@@ -72,7 +72,8 @@ const resolvers = {
       }
       return await Book.find({ genres: { $in: [args.genre] } }).populate('author')
     },
-    allAuthors: async () => await Author.find()
+    allAuthors: async () => await Author.find(),
+    me: (root, args, context) => context.currentUser
   },
   Mutation: {
     addBook: async (root, args, context) => {
