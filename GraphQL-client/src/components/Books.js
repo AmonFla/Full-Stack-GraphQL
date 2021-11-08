@@ -1,33 +1,48 @@
-import { useQuery } from '@apollo/client'
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useLazyQuery } from '@apollo/client'
 import React, { useEffect, useState } from 'react'
-import { BOOKS_GET_ALL } from '../graphql/books'
-import { union, includes } from 'lodash'
+import { BOOKS_GET_ALL, BOOKS_GET_BY_GENRE } from '../graphql/books'
+import { union} from 'lodash'
 
 
 const Books = (props) => {
   const [books, setBooks] = useState([])
-  const result = useQuery(BOOKS_GET_ALL)
+  const [getAllBooks, resultFull] = useLazyQuery(BOOKS_GET_ALL) 
+  const [getAllBooksFiltered, resultFiltered] = useLazyQuery(BOOKS_GET_BY_GENRE, {fetchPolicy: 'network-only'})
+
   const [filter, setFilter] = useState('')
   const [genres, setGenres] = useState([])
   
   useEffect(()=>{
-    if(result.data){
-      setBooks(result.data.allBooks)
-      setGenres(result.data.allBooks.reduce((genres, book) => union(genres,book.genres), [])) 
+    if(resultFull.data){
+      setBooks(resultFull.data.allBooks)
+      setGenres(resultFull.data.allBooks.reduce((genres, book) => union(genres,book.genres), [])) 
+    } 
+  },[resultFull])
+
+  useEffect(()=>{
+    if(resultFiltered.data){
+      setBooks(resultFiltered.data.allBooks) 
+    } 
+  },[resultFiltered])
+
+  useEffect(()=>{
+    getAllBooks()
+  },[])
+
+  useEffect(()=>{
+    if(filter !== ''){
+      getAllBooksFiltered({variables:{genre: filter}})
+    }else{
+      getAllBooks()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[result])
+  },[filter])
 
   if (!props.show) {
     return null
   }
 
-  let bookList = books
-  if(filter !== '')
-    bookList = books.filter(b => includes(b.genres, filter) )
   
-  
-
   return (
     <div>
       <h2>books</h2>
@@ -43,7 +58,7 @@ const Books = (props) => {
               published
             </th>
           </tr>
-          {bookList.map(a =>
+          {books.map(a =>
             <tr key={a.title}>
               <td>{a.title}</td>
               <td>{a.author.name}</td>
@@ -52,7 +67,7 @@ const Books = (props) => {
           )}
         </tbody>
       </table>
-      {genres.map(genre=> <button onClick={()=> setFilter(genre)}>{genre}</button> )}<button onClick={()=> setFilter('')}>Todos</button>
+      {genres.map(genre=> <button key={genre} onClick={()=> setFilter(genre)}>{genre}</button> )}<button onClick={()=> setFilter('')}>Todos</button>
     </div>
   )
 }
