@@ -14,3 +14,4 @@ Git de entregas de los ejercicios del curso
 * [Thoughts on Structuring your Apollo Queries & Mutations - Front Structure](Thoughts on Structuring your Apollo Queries & Mutations)
 * [JavaScript predictions for 2019 by npm](https://blog.graphqleditor.com/javascript-predictions-for-2019-by-npm)
 * [Is 2018 the year GraphQL kills REST? ](https://www.stridenyc.com/podcasts/52-is-2018-the-year-graphql-kills-rest)
+* [Apollo 3 Subscriptions](https://www.apollographql.com/docs/apollo-server/data/subscriptions/)

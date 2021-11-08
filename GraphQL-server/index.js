@@ -1,10 +1,13 @@
 
 const { ApolloServer } = require('apollo-server-express')
-const { ApolloServerPluginDrainHttpServer } = require('apollo-server-core')
-const express = require('express')
-const http = require('http')
+const { execute, subscribe } = require('graphql')
+const { SubscriptionServer } = require('subscriptions-transport-ws')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
 
+const http = require('http')
+const express = require('express')
 const mongoose = require('mongoose')
+
 const { typeDefs, resolvers, context } = require('./graphql')
 const config = require('./utils/config')
 
@@ -22,12 +25,30 @@ async function startApolloServer (typeDefs, resolvers, context) {
   const app = express()
   const httpServer = http.createServer(app)
 
+  const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+  const subscriptionsServer = SubscriptionServer.create({
+    schema,
+    execute,
+    subscribe
+  }, {
+    server: httpServer,
+    path: '/'
+  })
+
   // Same ApolloServer initialization as before, plus the drain plugin.
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
     context,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+    plugins: [{
+      async serverWillStart () {
+        return {
+          async drainServer () {
+            subscriptionsServer.close()
+          }
+        }
+      }
+    }]
   })
 
   // More required logic for integrating with Express

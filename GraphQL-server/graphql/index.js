@@ -4,6 +4,8 @@ const Author = require('../models/author')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const { SECRET } = require('../utils/config')
+const { PubSub } = require('graphql-subscriptions')
+const pubsub = new PubSub()
 
 const typeDefs = gql`
 
@@ -60,6 +62,10 @@ const typeDefs = gql`
       password: String!
     ): Token
   }
+  
+  type Subscription{
+    bookAdded: Book!
+  }
 `
 
 const resolvers = {
@@ -96,6 +102,8 @@ const resolvers = {
       await book.save().catch((e) => {
         throw new UserInputError(e.message, { invalidArgs: args })
       })
+
+      pubsub.publish('bookAdded', { bookAdded: book })
       return book
     },
     editAuthor: async (root, args, context) => {
@@ -127,6 +135,11 @@ const resolvers = {
         id: user._id
       }
       return { value: jwt.sign(userToken, SECRET) }
+    }
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator('bookAdded')
     }
   }
 }
