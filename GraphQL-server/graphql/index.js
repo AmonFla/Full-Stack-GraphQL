@@ -1,4 +1,4 @@
-const { gql, UserInputError, AuthenticationError } = require('apollo-server')
+const { gql, UserInputError, AuthenticationError } = require('apollo-server-express')
 const Book = require('../models/book')
 const Author = require('../models/author')
 const User = require('../models/user')
@@ -131,7 +131,7 @@ const resolvers = {
   }
 }
 
-const context = async (req) => {
+const context = async ({ req }) => {
   const auth = req ? req.headers.authorization : null
   if (auth && auth.toLowerCase().startsWith('bearer ')) {
     const decodedToken = jwt.verify(
