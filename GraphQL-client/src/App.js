@@ -5,6 +5,8 @@ import Books from './components/Books'
 import LoginForm from './components/LoginForm'
 import NewBook from './components/NewBook'
 import Recommendations from './components/Recommendations'
+import { useSubscription } from '@apollo/client'
+import { BOOK_ADDED_SUBSCRIPTION } from './graphql/books'
 
 const App = () => {
   const [page, setPage] = useState('authors')
@@ -15,6 +17,12 @@ const App = () => {
     localStorage.clear()  
   }
 
+  useSubscription(BOOK_ADDED_SUBSCRIPTION,{
+    onSubscriptionData: ({onSubscriptionData}) => {
+      window.alert('New book was added')
+    }
+  })
+  
   useEffect(()=>{
     const userToken = localStorage.getItem('user-token')
     if (userToken){
@@ -59,6 +67,7 @@ const App = () => {
 
       <NewBook
         show={page === 'add'}
+        setPage={()=>setPage('books')}
       />
 
     </div>

@@ -28,6 +28,7 @@ const NewBook = (props) => {
     setAuthor('')
     setGenres([])
     setGenre('')
+    props.setPage()
   }
 
   const addGenre = () => {
