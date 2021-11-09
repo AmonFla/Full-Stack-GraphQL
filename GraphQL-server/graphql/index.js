@@ -78,7 +78,11 @@ const resolvers = {
       }
       return await Book.find({ genres: { $in: [args.genre] } }).populate('author')
     },
-    allAuthors: async () => await Author.find(),
+    allAuthors: async () => {
+      const author = await Author.find()
+      const resp = author.map(a => ({ name: a.name, id: a.id, born: a.born, bookCount: a.books.length }))
+      return resp
+    },
     me: (root, args, context) => context.currentUser
   },
   Mutation: {
@@ -102,6 +106,8 @@ const resolvers = {
       await book.save().catch((e) => {
         throw new UserInputError(e.message, { invalidArgs: args })
       })
+      author.books = author.books.concat(book.id)
+      author.save()
 
       pubsub.publish('bookAdded', { bookAdded: book })
       return book

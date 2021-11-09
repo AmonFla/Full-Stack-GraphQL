@@ -11,7 +11,13 @@ const schema = new mongoose.Schema({
   born: {
     type: Number,
     default: null
-  }
+  },
+  books: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Book'
+    }
+  ]
 }).plugin(mongooseUnique)
 
 module.exports = mongoose.model('Author', schema)
