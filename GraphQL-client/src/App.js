@@ -5,24 +5,40 @@ import Books from './components/Books'
 import LoginForm from './components/LoginForm'
 import NewBook from './components/NewBook'
 import Recommendations from './components/Recommendations'
-import { useSubscription } from '@apollo/client'
-import { BOOK_ADDED_SUBSCRIPTION } from './graphql/books'
+import { useSubscription, useApolloClient} from '@apollo/client'
+import { BOOKS_GET_ALL, BOOK_ADDED_SUBSCRIPTION } from './graphql/books'
 
 const App = () => {
   const [page, setPage] = useState('authors')
   const [token, setToken] = useState(null)
+  const client = useApolloClient()
 
   const logout = () => {    
     setToken(null)    
     localStorage.clear()  
   }
 
+  const updateCache = (book) => {
+    const includeIn = (set, object) => 
+      set.map(p=>p.id).includes(object.id)
+
+    const dataInStore = client.readQuery({query: BOOKS_GET_ALL})
+    if(!includeIn(dataInStore.allBooks, book)){
+      client.writeQuery({
+        query: BOOKS_GET_ALL,
+        data: {allBooks: dataInStore.allBooks.concat(book)}
+      })
+    }
+  }
+
   useSubscription(BOOK_ADDED_SUBSCRIPTION,{
-    onSubscriptionData: ({onSubscriptionData}) => {
+    onSubscriptionData: ({subscriptionData}) => {
+      const book = subscriptionData.data.bookAdded
       window.alert('New book was added')
+      updateCache(book)
     }
   })
-  
+
   useEffect(()=>{
     const userToken = localStorage.getItem('user-token')
     if (userToken){
